@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logos Marquee</title>
+<style>
+  /* Page reset */
+  html,body{margin:0;padding:0;background:transparent}
+  /* Full-bleed container inside the iframe */
+  .trusted-logos{width:100vw;overflow:hidden;padding:0}
+  .viewport{overflow:hidden;width:100%}
+  .track{
+    display:flex;align-items:center;gap:48px;
+    padding:16px 24px;width:max-content;
+    animation:scroll 50s linear infinite;will-change:transform;
+  }
+  .track li{list-style:none;flex:0 0 auto}
+  .track img{display:block;height:44px;width:auto;filter:grayscale(1);opacity:.95}
+  /* Pause on hover (if someone hovers inside the iframe) */
+  .viewport:hover .track{animation-play-state:paused}
+  /* Responsive heights */
+  @media (max-width:991px){.track{gap:32px}.track img{height:36px}}
+  @media (max-width:599px){.track{gap:24px}.track img{height:30px}}
+  /* Reduced motion */
+  @media (prefers-reduced-motion:reduce){.track{animation:none}}
+  /* Seamless loop (because list is duplicated below) */
+  @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* Optional: subtle edge fade for a premium feel */
+  .viewport::before,.viewport::after{
+    content:"";position:absolute;top:0;height:100%;width:60px;pointer-events:none;
+    background:linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
+  }
+  .viewport{position:relative}
+  .viewport::after{right:0;transform:scaleX(-1)}
+</style>
+<body>
+  <section class="trusted-logos" aria-label="Trusted by top companies">
+    <div class="viewport">
+      <ul class="track" aria-label="Client logos">
+        <!-- Set A (relative URLs; served from this repo via GitHub Pages) -->
+        <li><img src="adobe.svg" alt="Adobe"></li>
+        <li><img src="alokai.svg" alt="Alokai"></li>
+        <li><img src="aquent.svg" alt="Aquent"></li>
+        <li><img src="bazaarvoice.svg" alt="Bazaarvoice"></li>
+        <li><img src="bynder.svg" alt="Bynder"></li>
+        <li><img src="channeladvisor.svg" alt="ChannelAdvisor"></li>
+        <li><img src="coveo.svg" alt="Coveo"></li>
+        <li><img src="epsilon.svg" alt="Epsilon"></li>
+        <li><img src="equifax.svg" alt="Equifax"></li>
+        <li><img src="google.svg" alt="Google"></li>
+        <li><img src="ibm.svg" alt="IBM"></li>
+        <li><img src="lionbridge.svg" alt="Lionbridge"></li>
+        <li><img src="marigold.svg" alt="Marigold"></li>
+        <li><img src="meta.svg" alt="Meta"></li>
+        <li><img src="microsoft.svg" alt="Microsoft"></li>
+        <li><img src="northhighland.svg" alt="North Highland"></li>
+        <li><img src="omnicomhealthgroup.svg" alt="Omnicom Health Group"></li>
+        <li><img src="oracle.svg" alt="Oracle"></li>
+        <li><img src="salesforce.svg" alt="Salesforce"></li>
+        <li><img src="sitecore.svg" alt="Sitecore"></li>
+        <li><img src="tealium.svg" alt="Tealium"></li>
+        <li><img src="zone.svg" alt="Zone"></li>
+
+        <!-- Set B (duplicate for seamless loop) -->
+        <li><img src="adobe.svg" alt="" aria-hidden="true"></li>
+        <li><img src="alokai.svg" alt="" aria-hidden="true"></li>
+        <li><img src="aquent.svg" alt="" aria-hidden="true"></li>
+        <li><img src="bazaarvoice.svg" alt="" aria-hidden="true"></li>
+        <li><img src="bynder.svg" alt="" aria-hidden="true"></li>
+        <li><img src="channeladvisor.svg" alt="" aria-hidden="true"></li>
+        <li><img src="coveo.svg" alt="" aria-hidden="true"></li>
+        <li><img src="epsilon.svg" alt="" aria-hidden="true"></li>
+        <li><img src="equifax.svg" alt="" aria-hidden="true"></li>
+        <li><img src="google.svg" alt="" aria-hidden="true"></li>
+        <li><img src="ibm.svg" alt="" aria-hidden="true"></li>
+        <li><img src="lionbridge.svg" alt="" aria-hidden="true"></li>
+        <li><img src="marigold.svg" alt="" aria-hidden="true"></li>
+        <li><img src="meta.svg" alt="" aria-hidden="true"></li>
+        <li><img src="microsoft.svg" alt="" aria-hidden="true"></li>
+        <li><img src="northhighland.svg" alt="" aria-hidden="true"></li>
+        <li><img src="omnicomhealthgroup.svg" alt="" aria-hidden="true"></li>
+        <li><img src="oracle.svg" alt="" aria-hidden="true"></li>
+        <li><img src="salesforce.svg" alt="" aria-hidden="true"></li>
+        <li><img src="sitecore.svg" alt="" aria-hidden="true"></li>
+        <li><img src="tealium.svg" alt="" aria-hidden="true"></li>
+        <li><img src="zone.svg" alt="" aria-hidden="true"></li>
+      </ul>
+    </div>
+  </section>
+</body>
+</html>
