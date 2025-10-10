@@ -3,24 +3,44 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<!-- Tell browsers/proxies not to cache this HTML (helps when embedded in iframes) -->
+<!-- Prevent caching (handy when embedded) -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
 <title>Logos Marquee</title>
 <style>
-  :root{ --strip-height:120px; --logo-gap:48px; --speed:65s }
+  :root{
+    --strip-height: 100px;  /* tighter for perfect centering in a 110px iframe */
+    --logo-gap: 48px;
+    --speed: 50s;           /* slightly slower = smoother */
+  }
+
   html,body{ margin:0; padding:0; background:transparent; height:100% }
   body{ display:flex; align-items:center; justify-content:center; min-height:var(--strip-height) }
+
   .trusted-logos{ width:100vw; overflow:hidden; padding:0 }
   .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
   .track{ display:flex; align-items:center; gap:var(--logo-gap); padding:0 24px; width:max-content; animation:scroll var(--speed) linear infinite; will-change:transform }
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
+
+  /* Pause on hover (desktop) */
   .viewport:hover .track{ animation-play-state:paused }
-  @media (max-width:991px){ :root{ --strip-height:100px; --logo-gap:32px } }
-  @media (max-width:599px){ :root{ --strip-height:86px; --logo-gap:24px } }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .track{ animation:none }
+  }
+
+  /* Responsive: a touch shorter on mobile */
+  @media (max-width: 768px){
+    :root{ --strip-height: 90px; --logo-gap: 32px }
+  }
+  @media (max-width: 480px){
+    :root{ --strip-height: 86px; --logo-gap: 24px }
+  }
+
   @keyframes scroll{ 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
 </style>
 
@@ -55,7 +75,7 @@
         <li><img src="https://jimmietango.github.io/logos/tealium.svg" alt="Tealium"></li>
         <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone"></li>
 
-        <!-- Set B -->
+        <!-- Set B (duplicates for seamless scroll) -->
         <li><img src="https://jimmietango.github.io/logos/adobe.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="" aria-hidden="true"></li>
@@ -85,15 +105,15 @@
     </div>
   </section>
 
-  <!-- Force cache-busting on all images -->
+  <!-- Cache-bust logos each load -->
   <script>
-    const V = String(Date.now()); // unique per load
+    const V = String(Date.now());
     document.querySelectorAll('.track img').forEach(img => {
-      try {
+      try{
         const u = new URL(img.src);
         u.searchParams.set('v', V);
         img.src = u.toString();
-      } catch(e){
+      }catch(e){
         img.src = img.src + (img.src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
       }
     });
