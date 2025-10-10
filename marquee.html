@@ -4,73 +4,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Logos Marquee</title>
 <style>
-  /* === Quick controls === */
   :root{
-    --strip-height: 120px;    /* height of the scrolling belt */
-    --logo-gap: 48px;
-    --speed: 50s;
-    --eyebrow-h: 28px;        /* visual heading height (approx) */
+    --strip-height:120px; --logo-gap:48px; --speed:50s;
+    --eyebrow-color: rgba(15,23,42,.7); /* default: dark text */
   }
+  html,body{ margin:0; padding:0; background:transparent; height:100% }
+  body{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+        min-height:calc(var(--strip-height) + 28px);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif }
 
-  html, body{ margin:0; padding:0; background:transparent; height:100% }
-  body{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    min-height: calc(var(--strip-height) + var(--eyebrow-h));
-    gap: 8px;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-  }
-
-  /* Visible heading */
-  .eyebrow{
-    font: 700 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: rgba(15,23,42,.7);      /* dark-on-light; tweak if your page is dark */
-    margin: 0;
-    text-align: center;
-    user-select: none;
-    white-space: nowrap;
-  }
-
-  /* Full-bleed marquee section */
-  .trusted-logos{ width:100vw; overflow:hidden; padding:0; }
-
-  .viewport{
-    position:relative; overflow:hidden; width:100%;
-    height:var(--strip-height); display:flex; align-items:center;
-  }
-
-  .track{
-    display:flex; align-items:center; gap:var(--logo-gap);
-    padding:0 24px; width:max-content;
-    animation:scroll var(--speed) linear infinite; will-change:transform;
-  }
-
-  .track li{ list-style:none; flex:0 0 auto; }
-  .track img{
-    display:block; height:calc(var(--strip-height) * 0.36); /* ~44px when 120px */
-    width:auto; filter:grayscale(1); opacity:.95;
-  }
-
-  .viewport:hover .track{ animation-play-state:paused; }
-
-  @media (max-width:991px){
-    :root{ --strip-height: 100px; --logo-gap: 32px; --eyebrow-h: 26px; }
-  }
-  @media (max-width:599px){
-    :root{ --strip-height: 86px; --logo-gap: 24px; --eyebrow-h: 24px; }
-  }
-
-  @media (prefers-reduced-motion: reduce){ .track{ animation:none } }
-
-  @keyframes scroll{
-    0%{ transform:translateX(0) }
-    100%{ transform:translateX(-50%) }
-  }
+  .eyebrow{ margin:0; font:700 12px/1.2 inherit; letter-spacing:.08em; text-transform:uppercase;
+            color:var(--eyebrow-color); text-align:center; white-space:nowrap;
+            text-shadow: 0 1px 2px rgba(0,0,0,.15); }
+  .trusted-logos{ width:100vw; overflow:hidden; padding:0 }
+  .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
+  .track{ display:flex; align-items:center; gap:var(--logo-gap); padding:0 24px; width:max-content;
+          animation:scroll var(--speed) linear infinite; will-change:transform }
+  .track li{ list-style:none; flex:0 0 auto }
+  .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
+  .viewport:hover .track{ animation-play-state:paused }
+  @media (max-width:991px){ :root{ --strip-height:100px; --logo-gap:32px } }
+  @media (max-width:599px){ :root{ --strip-height:86px; --logo-gap:24px } }
+  @keyframes scroll{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 </style>
 
 <body>
-  <!-- Visible heading -->
   <h2 id="trusted-title" class="eyebrow">Trusted by top companies</h2>
 
   <section class="trusted-logos" aria-labelledby="trusted-title">
@@ -103,7 +61,7 @@
         <li><img src="tealium.svg" alt="Tealium"></li>
         <li><img src="zone.svg" alt="Zone"></li>
 
-        <!-- Set B (duplicate for seamless loop) -->
+        <!-- Set B -->
         <li><img src="adobe.svg" alt="" aria-hidden="true"></li>
         <li><img src="aibl.svg" alt="" aria-hidden="true"></li>
         <li><img src="alokai.svg" alt="" aria-hidden="true"></li>
@@ -133,14 +91,19 @@
     </div>
   </section>
 
-  <!-- Optional: cache-bust images if needed
   <script>
-    const V = '2025-10-10-5';
-    document.querySelectorAll('.track img').forEach(img => {
-      const u = new URL(img.getAttribute('src'), location.href);
-      u.searchParams.set('v', V);
-      img.src = u.toString();
+    // Read ?theme=dark to force light heading on dark backgrounds
+    const params = new URLSearchParams(location.search);
+    if (params.get('theme') === 'dark') {
+      document.documentElement.style.setProperty('--eyebrow-color','rgba(255,255,255,.9)');
+    }
+    // Optional: cache-bust images each load
+    const V = params.get('v') || String(Date.now());
+    document.querySelectorAll('.track img').forEach(img=>{
+      const u=new URL(img.getAttribute('src'),location.href);
+      u.searchParams.set('v',V);
+      img.src=u.toString();
     });
-  </script> -->
+  </script>
 </body>
 </html>
