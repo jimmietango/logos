@@ -6,84 +6,74 @@
 <style>
   /* === Quick controls === */
   :root{
-    --strip-height: 120px;     /* total height of this marquee inside the iframe */
-    --logo-gap: 48px;          /* space between logos */
-    --speed: 50s;              /* higher = slower scroll */
+    --strip-height: 120px;    /* height of the scrolling belt */
+    --logo-gap: 48px;
+    --speed: 50s;
+    --eyebrow-h: 28px;        /* visual heading height (approx) */
   }
 
-  /* Page reset + vertical centering */
-  html, body{
-    margin:0; padding:0;
-    background:transparent;       /* ensure no white background shows through the iframe */
-    height:100%;
-  }
+  html, body{ margin:0; padding:0; background:transparent; height:100% }
   body{
-    display:flex;
-    align-items:center;           /* center the track vertically */
-    justify-content:center;
-    min-height:var(--strip-height);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height: calc(var(--strip-height) + var(--eyebrow-h));
+    gap: 8px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+  }
+
+  /* Visible heading */
+  .eyebrow{
+    font: 700 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(15,23,42,.7);      /* dark-on-light; tweak if your page is dark */
+    margin: 0;
+    text-align: center;
+    user-select: none;
+    white-space: nowrap;
   }
 
   /* Full-bleed marquee section */
-  .trusted-logos{
-    width:100vw;
-    overflow:hidden;
-    padding:0;
-  }
+  .trusted-logos{ width:100vw; overflow:hidden; padding:0; }
 
   .viewport{
-    position:relative;
-    overflow:hidden;
-    width:100%;
-    height:var(--strip-height);
-    display:flex;
-    align-items:center;           /* belt-and-braces vertical centering */
+    position:relative; overflow:hidden; width:100%;
+    height:var(--strip-height); display:flex; align-items:center;
   }
 
   .track{
-    display:flex;
-    align-items:center;
-    gap:var(--logo-gap);
-    padding:0 24px;
-    width:max-content;
-    animation:scroll var(--speed) linear infinite;
-    will-change:transform;
+    display:flex; align-items:center; gap:var(--logo-gap);
+    padding:0 24px; width:max-content;
+    animation:scroll var(--speed) linear infinite; will-change:transform;
   }
 
   .track li{ list-style:none; flex:0 0 auto; }
   .track img{
-    display:block;
-    height:calc(var(--strip-height) * 0.36); /* ~44px when strip-height=120px */
-    width:auto;
-    filter:grayscale(1);
-    opacity:.95;
+    display:block; height:calc(var(--strip-height) * 0.36); /* ~44px when 120px */
+    width:auto; filter:grayscale(1); opacity:.95;
   }
 
-  /* Pause on hover (if someone hovers inside the iframe) */
   .viewport:hover .track{ animation-play-state:paused; }
 
-  /* Responsive inside the iframe (optional) */
   @media (max-width:991px){
-    :root{ --strip-height: 100px; --logo-gap: 32px; }
+    :root{ --strip-height: 100px; --logo-gap: 32px; --eyebrow-h: 26px; }
   }
   @media (max-width:599px){
-    :root{ --strip-height: 86px; --logo-gap: 24px; }
+    :root{ --strip-height: 86px; --logo-gap: 24px; --eyebrow-h: 24px; }
   }
 
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce){
-    .track{ animation:none; }
-  }
+  @media (prefers-reduced-motion: reduce){ .track{ animation:none } }
 
-  /* Seamless loop: because the list is duplicated below */
   @keyframes scroll{
-    0%   { transform:translateX(0); }
-    100% { transform:translateX(-50%); }
+    0%{ transform:translateX(0) }
+    100%{ transform:translateX(-50%) }
   }
 </style>
 
 <body>
-  <section class="trusted-logos" aria-label="Trusted by top companies">
+  <!-- Visible heading -->
+  <h2 id="trusted-title" class="eyebrow">Trusted by top companies</h2>
+
+  <section class="trusted-logos" aria-labelledby="trusted-title">
     <div class="viewport">
       <ul class="track" aria-label="Client logos">
         <!-- Set A -->
@@ -143,19 +133,14 @@
     </div>
   </section>
 
-  <!-- Cache-bust all <img> so updates show instantly -->
+  <!-- Optional: cache-bust images if needed
   <script>
-    const V = '2025-10-10-3'; // bump this when you add/change files
+    const V = '2025-10-10-5';
     document.querySelectorAll('.track img').forEach(img => {
-      try {
-        const u = new URL(img.getAttribute('src'), location.href);
-        u.searchParams.set('v', V);
-        img.src = u.toString();
-      } catch (e) {
-        // Fallback for older browsers
-        img.src = img.getAttribute('src') + (img.getAttribute('src').includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
-      }
+      const u = new URL(img.getAttribute('src'), location.href);
+      u.searchParams.set('v', V);
+      img.src = u.toString();
     });
-  </script>
+  </script> -->
 </body>
 </html>
