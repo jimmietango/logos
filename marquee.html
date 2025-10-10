@@ -11,43 +11,44 @@
 <title>Logos Marquee</title>
 <style>
   :root{
-    --strip-height: 100px;  /* tighter for perfect centering in a 110px iframe */
+    --strip-height: 100px;  /* pairs perfectly with 110px iframe */
     --logo-gap: 48px;
-    --speed: 50s;           /* slightly slower = smoother */
+    --speed-seconds: 50;    /* lower = faster auto-scroll */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
   body{ display:flex; align-items:center; justify-content:center; min-height:var(--strip-height) }
 
-  .trusted-logos{ width:100vw; overflow:hidden; padding:0 }
-  .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
-  .track{ display:flex; align-items:center; gap:var(--logo-gap); padding:0 24px; width:max-content; animation:scroll var(--speed) linear infinite; will-change:transform }
+  .trusted-logos{ width:100vw; overflow:hidden; padding:0; -webkit-user-select:none; user-select:none }
+  .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center; cursor:grab }
+  .viewport.dragging{ cursor:grabbing }
+
+  .track{
+    display:flex; align-items:center; gap:var(--logo-gap);
+    padding:0 24px; width:max-content; will-change:transform;
+    transform:translate3d(0,0,0);
+  }
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
-  /* Pause on hover (desktop) */
-  .viewport:hover .track{ animation-play-state:paused }
-
-  /* Respect reduced motion */
+  /* Motion preference: disable auto-scroll but keep manual drag */
   @media (prefers-reduced-motion: reduce){
-    .track{ animation:none }
+    :root{ --speed-seconds: 0; }
   }
 
-  /* Responsive: a touch shorter on mobile */
+  /* Responsive height tweaks for iframe harmony on small screens */
   @media (max-width: 768px){
     :root{ --strip-height: 90px; --logo-gap: 32px }
   }
   @media (max-width: 480px){
     :root{ --strip-height: 86px; --logo-gap: 24px }
   }
-
-  @keyframes scroll{ 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
 </style>
 
 <body>
   <section class="trusted-logos" aria-label="Trusted by top companies">
-    <div class="viewport">
-      <ul class="track" aria-label="Client logos">
+    <div class="viewport" id="viewport">
+      <ul class="track" id="track" aria-label="Client logos">
         <!-- Set A -->
         <li><img src="https://jimmietango.github.io/logos/adobe.svg" alt="Adobe"></li>
         <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="AiBL"></li>
@@ -75,7 +76,7 @@
         <li><img src="https://jimmietango.github.io/logos/tealium.svg" alt="Tealium"></li>
         <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone"></li>
 
-        <!-- Set B (duplicates for seamless scroll) -->
+        <!-- Set B (cloned for seamless loop) -->
         <li><img src="https://jimmietango.github.io/logos/adobe.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="" aria-hidden="true"></li>
@@ -105,18 +106,123 @@
     </div>
   </section>
 
-  <!-- Cache-bust logos each load -->
   <script>
-    const V = String(Date.now());
-    document.querySelectorAll('.track img').forEach(img => {
-      try{
-        const u = new URL(img.src);
-        u.searchParams.set('v', V);
-        img.src = u.toString();
-      }catch(e){
-        img.src = img.src + (img.src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
+    // ---- Cache-bust all logos each load ----
+    (function cacheBust(){
+      const V = String(Date.now());
+      document.querySelectorAll('.track img').forEach(img => {
+        try{
+          const u = new URL(img.src);
+          u.searchParams.set('v', V);
+          img.src = u.toString();
+        }catch(e){
+          img.src = img.src + (img.src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
+        }
+      });
+    })();
+
+    // ---- Auto-scroll + drag-to-scroll (infinite) ----
+    (function marquee(){
+      const viewport = document.getElementById('viewport');
+      const track = document.getElementById('track');
+
+      let x = 0;                // current translateX in px
+      let half;                 // half of the total duplicated width
+      let pxPerSec = 0;         // auto speed
+      let dragging = false;
+      let lastX = 0;
+
+      function measure(){
+        // width of one full set (half the children)
+        const items = [...track.children];
+        const halfCount = items.length / 2;
+        let w = 0;
+        for(let i=0;i<halfCount;i++){
+          w += items[i].getBoundingClientRect().width;
+          if(i < halfCount-1) w += gap(items[i], items[i+1]);
+        }
+        half = w;
+        const seconds = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--speed-seconds')) || 0;
+        pxPerSec = seconds > 0 ? (half / seconds) : 0; // move one half-width per duration
       }
-    });
+
+      function gap(a, b){
+        // actual rendered gap between list items (accounts for --logo-gap)
+        const ar = a.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        return Math.max(0, br.left - ar.right);
+      }
+
+      function wrap(){
+        // keep x within [ -half, 0 )
+        if (x <= -half) x += half;
+        if (x >= 0)     x -= half;
+      }
+
+      let lastT = performance.now();
+      function tick(t){
+        const dt = (t - lastT) / 1000; // seconds
+        lastT = t;
+
+        if (!dragging && pxPerSec > 0){
+          x -= pxPerSec * dt;  // move left
+          wrap();
+        }
+
+        track.style.transform = `translate3d(${x}px,0,0)`;
+        requestAnimationFrame(tick);
+      }
+
+      // Pointer / touch drag
+      function onDown(e){
+        dragging = true;
+        viewport.classList.add('dragging');
+        lastX = ('touches' in e) ? e.touches[0].clientX : e.clientX;
+        e.preventDefault();
+      }
+      function onMove(e){
+        if(!dragging) return;
+        const cx = ('touches' in e) ? e.touches[0].clientX : e.clientX;
+        const dx = cx - lastX;
+        lastX = cx;
+        x += dx;   // positive dx drags to the right
+        wrap();
+      }
+      function onUp(){
+        dragging = false;
+        viewport.classList.remove('dragging');
+      }
+
+      // Wheel / trackpad horizontal nudge
+      function onWheel(e){
+        // Prefer horizontal delta; fall back to vertical for trackpads
+        const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        x -= dx;  // natural feel: wheel right moves strip left
+        wrap();
+        // prevent parent page horizontal scroll
+        e.preventDefault();
+      }
+
+      // Setup
+      measure();
+      requestAnimationFrame(tick);
+      addEventListener('resize', () => {
+        const current = track.getBoundingClientRect().left;
+        measure();
+        // preserve visual position after re-measure
+        x = current;
+        wrap();
+      });
+
+      // Events
+      viewport.addEventListener('mousedown', onDown, {passive:false});
+      viewport.addEventListener('touchstart', onDown, {passive:false});
+      window.addEventListener('mousemove', onMove, {passive:false});
+      window.addEventListener('touchmove', onMove, {passive:false});
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+      viewport.addEventListener('wheel', onWheel, {passive:false});
+    })();
   </script>
 </body>
 </html>
