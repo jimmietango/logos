@@ -80,17 +80,6 @@
     0%   { transform:translateX(0); }
     100% { transform:translateX(-50%); }
   }
-
-  /* OPTIONAL: remove edge fades entirely (clean over photos)
-     If you ever want soft fades, uncomment this block and pick colours that
-     match your page. Keeping it commented avoids any light borders. */
-  /*
-  .viewport::before, .viewport::after{
-    content:""; position:absolute; top:0; height:100%; width:60px; pointer-events:none;
-    background:linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0));
-  }
-  .viewport::after{ right:0; transform:scaleX(-1); }
-  */
 </style>
 
 <body>
@@ -99,15 +88,18 @@
       <ul class="track" aria-label="Client logos">
         <!-- Set A -->
         <li><img src="adobe.svg" alt="Adobe"></li>
+        <li><img src="aibl.svg" alt="AiBL"></li>
         <li><img src="alokai.svg" alt="Alokai"></li>
         <li><img src="aquent.svg" alt="Aquent"></li>
         <li><img src="bazaarvoice.svg" alt="Bazaarvoice"></li>
         <li><img src="bynder.svg" alt="Bynder"></li>
         <li><img src="channeladvisor.svg" alt="ChannelAdvisor"></li>
         <li><img src="coveo.svg" alt="Coveo"></li>
+        <li><img src="epam.svg" alt="EPAM"></li>
         <li><img src="epsilon.svg" alt="Epsilon"></li>
         <li><img src="equifax.svg" alt="Equifax"></li>
         <li><img src="google.svg" alt="Google"></li>
+        <li><img src="happiness.svg" alt="The Happiness Index"></li>
         <li><img src="ibm.svg" alt="IBM"></li>
         <li><img src="lionbridge.svg" alt="Lionbridge"></li>
         <li><img src="marigold.svg" alt="Marigold"></li>
@@ -123,15 +115,18 @@
 
         <!-- Set B (duplicate for seamless loop) -->
         <li><img src="adobe.svg" alt="" aria-hidden="true"></li>
+        <li><img src="aibl.svg" alt="" aria-hidden="true"></li>
         <li><img src="alokai.svg" alt="" aria-hidden="true"></li>
         <li><img src="aquent.svg" alt="" aria-hidden="true"></li>
         <li><img src="bazaarvoice.svg" alt="" aria-hidden="true"></li>
         <li><img src="bynder.svg" alt="" aria-hidden="true"></li>
         <li><img src="channeladvisor.svg" alt="" aria-hidden="true"></li>
         <li><img src="coveo.svg" alt="" aria-hidden="true"></li>
+        <li><img src="epam.svg" alt="" aria-hidden="true"></li>
         <li><img src="epsilon.svg" alt="" aria-hidden="true"></li>
         <li><img src="equifax.svg" alt="" aria-hidden="true"></li>
         <li><img src="google.svg" alt="" aria-hidden="true"></li>
+        <li><img src="happiness.svg" alt="" aria-hidden="true"></li>
         <li><img src="ibm.svg" alt="" aria-hidden="true"></li>
         <li><img src="lionbridge.svg" alt="" aria-hidden="true"></li>
         <li><img src="marigold.svg" alt="" aria-hidden="true"></li>
@@ -147,5 +142,20 @@
       </ul>
     </div>
   </section>
+
+  <!-- Cache-bust all <img> so updates show instantly -->
+  <script>
+    const V = '2025-10-10-3'; // bump this when you add/change files
+    document.querySelectorAll('.track img').forEach(img => {
+      try {
+        const u = new URL(img.getAttribute('src'), location.href);
+        u.searchParams.set('v', V);
+        img.src = u.toString();
+      } catch (e) {
+        // Fallback for older browsers
+        img.src = img.getAttribute('src') + (img.getAttribute('src').includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
+      }
+    });
+  </script>
 </body>
 </html>
