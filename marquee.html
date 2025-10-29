@@ -3,17 +3,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<!-- Prevent caching (handy when embedded) -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
 <title>Logos Marquee</title>
 <style>
   :root{
-    --strip-height: 100px;  /* pairs with 110px iframe */
+    --strip-height: 100px;  /* pairs with 100px iframe */
     --logo-gap: 48px;
-    --speed-seconds: 60;    /* lower = faster auto-scroll */
+    --speed-seconds: 60;    /* larger = slower auto-scroll */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -30,12 +25,10 @@
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
-  /* Motion preference: disable auto-scroll */
   @media (prefers-reduced-motion: reduce){
     :root{ --speed-seconds: 0; }
   }
 
-  /* Responsive tweaks */
   @media (max-width: 768px){
     :root{ --strip-height: 90px; --logo-gap: 32px }
   }
@@ -106,9 +99,22 @@
   </section>
 
   <script>
-    // ---- Cache-bust all logos each load ----
-    (function cacheBust(){
-      const V = String(Date.now());
+    // --- Optional: override speed/height/gap via URL query params ---
+    (function tuneFromQuery(){
+      const p = new URLSearchParams(location.search);
+      const s = p.get('speed') || p.get('s');
+      const h = p.get('height') || p.get('h');
+      const g = p.get('gap') || p.get('g');
+      const root = document.documentElement.style;
+      if (s) root.setProperty('--speed-seconds', String(+s));
+      if (h) root.setProperty('--strip-height', String(+h) + 'px');
+      if (g) root.setProperty('--logo-gap', String(+g) + 'px');
+    })();
+
+    // --- Cache-bust only when parent passes ?v=... ---
+    (function cacheBustOnce(){
+      const V = new URLSearchParams(location.search).get('v');
+      if (!V) return;
       document.querySelectorAll('.track img').forEach(img => {
         try{
           const u = new URL(img.src);
@@ -120,7 +126,7 @@
       });
     })();
 
-    // ---- Auto-scroll (no drag, no wheel) ----
+    // --- Auto-scroll loop ---
     (function marquee(){
       const track = document.getElementById('track');
       let x = 0, half = 0, pxPerSec = 0;
@@ -141,7 +147,7 @@
         }
         half = w;
         const seconds = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--speed-seconds')) || 0;
-        pxPerSec = seconds > 0 ? (half / seconds) : 0; // traverse one half-width per duration
+        pxPerSec = seconds > 0 ? (half / seconds) : 0;
       }
 
       function wrap(){ if (x <= -half) x += half; if (x >= 0) x -= half; }
