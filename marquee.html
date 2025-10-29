@@ -8,7 +8,7 @@
   :root{
     --strip-height: 100px;   /* pairs with iframe height */
     --logo-gap: 48px;
-    --speed: 70s;            /* loop time: larger = slower */
+    --speed: 70s;            /* default loop time; overridden by &s=... */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -17,14 +17,19 @@
   .trusted-logos{ width:100vw; overflow:hidden; padding:0; -webkit-user-select:none; user-select:none }
   .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
 
-  /* The track is twice the content (A + B). We animate exactly -50% of its own width. */
+  /* Track is A+B (duplicated). We'll animate exactly -50% of its own width. */
   .track{
     display:flex; align-items:center; gap:var(--logo-gap);
     padding:0 24px; width:max-content; will-change:transform;
+    /* Start paused; JS will add .play once images are decoded */
+    animation: none;
+    opacity:0; transition: opacity .08s linear;
+  }
+  .track.play{
     animation: scroll var(--speed) linear infinite;
+    opacity:1;
   }
 
-  /* Keyframes: move the track left by half its own width */
   @keyframes scroll{
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
@@ -33,12 +38,9 @@
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
-  /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce){
-    .track{ animation: none; }
+    .track.play{ animation: none; }
   }
-
-  /* Responsive tweaks */
   @media (max-width: 768px){
     :root{ --strip-height: 90px; --logo-gap: 32px }
   }
@@ -50,7 +52,7 @@
 <body>
   <section class="trusted-logos" aria-label="Trusted by top companies">
     <div class="viewport">
-      <ul class="track" aria-label="Client logos">
+      <ul class="track" id="track" aria-label="Client logos">
         <!-- Set A -->
         <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="Adobe"></li>
         <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="EPAM"></li>
@@ -107,5 +109,37 @@
       </ul>
     </div>
   </section>
+
+  <script>
+    // Allow ?s=70 (or &speed=70) to override the CSS --speed variable
+    (function setSpeedFromQuery(){
+      const p = new URLSearchParams(location.search);
+      const s = p.get('s') || p.get('speed');
+      if (s && !isNaN(+s)) {
+        document.documentElement.style.setProperty('--speed', String(+s) + 's');
+      }
+    })();
+
+    // Append ?v=... to each logo if provided, purely to bust old edges after you update
+    (function maybeVersionImages(){
+      const v = new URLSearchParams(location.search).get('v');
+      if (!v) return;
+      document.querySelectorAll('.track img').forEach(img => {
+        try {
+          const u = new URL(img.src);
+          u.searchParams.set('v', v);
+          img.src = u.toString();
+        } catch (e) { /* ignore */ }
+      });
+    })();
+
+    // Wait until all logos are decoded, then start the CSS animation (adds .play)
+    (async function startWhenReady(){
+      const track = document.getElementById('track');
+      const imgs = Array.from(track.querySelectorAll('img'));
+      await Promise.all(imgs.map(img => img.decode?.().catch(()=>{}) ?? Promise.resolve()));
+      track.classList.add('play');
+    })();
+  </script>
 </body>
 </html>
