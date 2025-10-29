@@ -8,7 +8,7 @@
   :root{
     --strip-height: 100px;
     --logo-gap: 48px;
-    --duration: 80s; /* hard-set loop time */
+    --duration-80: 80s; /* distinct variable name */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -17,13 +17,14 @@
   .trusted-logos{ width:100vw; overflow:hidden; padding:0; -webkit-user-select:none; user-select:none }
   .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
 
-  /* A+B duplicated track; move exactly half its width per loop */
+  /* New animation name scroll80 so it cannot reuse the old cached keyframes */
   .track{
     display:flex; align-items:center; gap:var(--logo-gap);
     padding:0 24px; width:max-content; will-change:transform;
-    animation: scroll var(--duration) linear infinite;
+    animation: scroll80 var(--duration-80) linear infinite;
   }
-  @keyframes scroll{
+
+  @keyframes scroll80{
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
   }
@@ -31,7 +32,6 @@
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
-  /* visual badge so you can confirm the file loaded */
   .badge{
     position:absolute; top:6px; left:8px; z-index:2;
     font:600 11px/1.2 ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;
@@ -48,9 +48,9 @@
 <body>
   <section class="trusted-logos" aria-label="Trusted by top companies">
     <div class="viewport">
-      <div class="badge">v: 80s</div>
+      <div class="badge">v: 80s scroll80</div>
       <ul class="track" aria-label="Client logos">
-        <!-- Set A -->
+        <!-- your logo list here (unchanged) -->
         <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="Adobe"></li>
         <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="EPAM"></li>
         <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="Google"></li>
@@ -77,7 +77,7 @@
         <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="Omnicom Health Group"></li>
         <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone"></li>
 
-        <!-- Set B duplicate -->
+        <!-- Duplicate set -->
         <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="" aria-hidden="true"></li>
         <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="" aria-hidden="true"></li>
