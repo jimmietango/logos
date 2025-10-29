@@ -2,13 +2,13 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>Logos Marquee</title>
 <style>
   :root{
-    --strip-height: 100px;  /* pairs with 100px iframe */
+    --strip-height: 100px;
     --logo-gap: 48px;
-    --speed-seconds: 60;    /* larger = slower auto-scroll */
+    /* Hard-lock speed at 60s (no URL overrides); larger = slower */
+    --speed-seconds: 60 !important;
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -21,14 +21,16 @@
     display:flex; align-items:center; gap:var(--logo-gap);
     padding:0 24px; width:max-content; will-change:transform;
     transform:translate3d(0,0,0);
+    opacity:0; transition:opacity .08s linear; /* hide until measured */
   }
+  .track.ready{ opacity:1; }
+
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
   @media (prefers-reduced-motion: reduce){
-    :root{ --speed-seconds: 0; }
+    :root{ --speed-seconds: 0 !important; }
   }
-
   @media (max-width: 768px){
     :root{ --strip-height: 90px; --logo-gap: 32px }
   }
@@ -98,108 +100,63 @@
     </div>
   </section>
 
-<script>
-  // --- Optional: override speed/height/gap via URL query params ---
-  (function tuneFromQuery(){
-    const p = new URLSearchParams(location.search);
-    const s = p.get('speed') || p.get('s');
-    const h = p.get('height') || p.get('h');
-    const g = p.get('gap') || p.get('g');
-    const root = document.documentElement.style;
-    if (s) root.setProperty('--speed-seconds', String(+s));
-    if (h) root.setProperty('--strip-height', String(+h) + 'px');
-    if (g) root.setProperty('--logo-gap', String(+g) + 'px');
-  })();
+  <script>
+    // Wait for all logos (cached or fresh) so measurement is stable
+    function whenLogosReady() {
+      const imgs = Array.from(document.querySelectorAll('.track img'));
+      return Promise.all(imgs.map(img => {
+        if (img.complete) return (img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
+        return new Promise(res => {
+          const done = () => res();
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+        });
+      }));
+    }
 
-  // --- Cache-bust only when parent passes ?v=... ---
-  (function cacheBustOnce(){
-    const V = new URLSearchParams(location.search).get('v');
-    if (!V) return;
-    document.querySelectorAll('.track img').forEach(img => {
-      try{
-        const u = new URL(img.src);
-        u.searchParams.set('v', V);
-        img.src = u.toString();
-      }catch(e){
-        img.src = img.src + (img.src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(V);
+    (function marquee(){
+      const track = document.getElementById('track');
+      let x = 0, half = 0, pxPerSec = 0, rafId = 0;
+
+      function computeSpeed() {
+        const seconds = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue('--speed-seconds')) || 0;
+        pxPerSec = seconds > 0 ? (half / seconds) : 0;
       }
-    });
-  })();
 
-  // --- Helper: wait until all marquee images are loaded & decoded ---
-  function whenLogosReady() {
-    const imgs = Array.from(document.querySelectorAll('.track img'));
-    return Promise.all(imgs.map(img => {
-      if (img.complete) {
-        // If already complete, try to wait for decode (no-op for SVG in some browsers)
-        return (img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
+      function wrap(){ if (x <= -half) x += half; if (x >= 0) x -= half; }
+
+      let lastT = 0;
+      function tick(t){
+        if (!lastT) lastT = t;
+        const dt = (t - lastT) / 1000;
+        lastT = t;
+        if (pxPerSec > 0) { x -= pxPerSec * dt; wrap(); }
+        track.style.transform = `translate3d(${x}px,0,0)`;
+        rafId = requestAnimationFrame(tick);
       }
-      return new Promise(res => {
-        const done = () => res();
-        img.addEventListener('load', done, { once: true });
-        img.addEventListener('error', done, { once: true });
-      });
-    }));
-  }
 
-  // --- Auto-scroll loop (stable regardless of cache) ---
-  (function marquee(){
-    const track = document.getElementById('track');
-    let x = 0, half = 0, pxPerSec = 0, rafId = 0;
+      async function measureAndStart() {
+        if (rafId) cancelAnimationFrame(rafId);
+        await whenLogosReady();
+        half = track.scrollWidth / 2;   // reliable with duplicated A+B
+        computeSpeed();
+        // Keep current offset if re-measuring (resizes, bfcache)
+        const currentLeft = track.getBoundingClientRect().left;
+        x = currentLeft;
+        wrap();
+        track.classList.add('ready');   // reveal after measure
+        lastT = 0;
+        rafId = requestAnimationFrame(tick);
+      }
 
-    function computeSpeed() {
-      const seconds = parseFloat(getComputedStyle(document.documentElement)
-        .getPropertyValue('--speed-seconds')) || 0;
-      pxPerSec = seconds > 0 ? (half / seconds) : 0;
-    }
-
-    function wrap(){ if (x <= -half) x += half; if (x >= 0) x -= half; }
-
-    let lastT = 0;
-    function tick(t){
-      if (!lastT) lastT = t;
-      const dt = (t - lastT) / 1000;
-      lastT = t;
-      if (pxPerSec > 0) { x -= pxPerSec * dt; wrap(); }
-      track.style.transform = `translate3d(${x}px,0,0)`;
-      rafId = requestAnimationFrame(tick);
-    }
-
-    async function measureAndStart() {
-      // Cancel any existing loop before re-measuring
-      if (rafId) cancelAnimationFrame(rafId);
-
-      // Ensure images have sizes (works the same with cached or fresh loads)
-      await whenLogosReady();
-
-      // Force a layout read after images are ready
-      // Since you duplicat​ed A+B for seamless loop, half is exactly half the scrollWidth
-      half = track.scrollWidth / 2;
-
-      computeSpeed();
-
-      // Preserve current offset on re-measure (prevents jumps on resize/pageshow)
-      const currentLeft = track.getBoundingClientRect().left;
-      x = currentLeft;
-      wrap();
-
-      lastT = 0;
-      rafId = requestAnimationFrame(tick);
-    }
-
-    // Initial start
-    measureAndStart();
-
-    // Re-measure when:
-    // - The page returns from bfcache (opening in new tab/back/forward)
-    // - Window resizes
-    // - Any logo finishes loading later (edge case)
-    window.addEventListener('pageshow', () => measureAndStart());
-    window.addEventListener('resize', () => measureAndStart());
-    document.addEventListener('load', e => {
-      if (e.target && e.target.tagName === 'IMG') measureAndStart();
-    }, true);
-  })();
-</script>
+      measureAndStart();
+      window.addEventListener('pageshow', measureAndStart);
+      window.addEventListener('resize', measureAndStart);
+      document.addEventListener('load', e => {
+        if (e.target && e.target.tagName === 'IMG') measureAndStart();
+      }, true);
+    })();
+  </script>
 </body>
 </html>
