@@ -4,11 +4,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Logos Marquee</title>
 
+<!-- Preload a few “hero” logos to get something on screen fast -->
+<link rel="preload" as="image" href="https://jimmietango.github.io/logos/aaadobe.svg" crossorigin>
+<link rel="preload" as="image" href="https://jimmietango.github.io/logos/aaaepam.svg" crossorigin>
+<link rel="preload" as="image" href="https://jimmietango.github.io/logos/aaagoogle.svg" crossorigin>
+
 <style>
   :root{
     --strip-height: 100px;   /* keep in sync with iframe height */
     --logo-gap: 48px;
-    --duration: 80s;         /* will be overwritten by JS */
+    --duration: 40s;         /* faster default so it animates immediately */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -22,9 +27,9 @@
     display:flex; align-items:center; gap:var(--logo-gap);
     padding:0 24px; width:max-content; will-change:transform;
     animation: scroll var(--duration) linear infinite;
-    opacity:0; transition:opacity .08s linear; /* reveal after measured */
+    /* show immediately to avoid blank flash */
+    opacity:1;
   }
-  .track.play{ opacity:1; }
 
   @keyframes scroll{
     from { transform: translateX(0); }
@@ -32,11 +37,13 @@
   }
 
   .track li{ list-style:none; flex:0 0 auto }
-  .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
+  .track img{
+    display:block; height:calc(var(--strip-height)*0.36); width:auto;
+    filter:grayscale(1); opacity:.95;
+  }
 
   @media (prefers-reduced-motion: reduce){
     .track{ animation: none !important; }
-    .track.play{ opacity:1; }
   }
 
   @media (max-width: 768px){
@@ -52,95 +59,91 @@
     <div class="viewport">
       <ul class="track" id="track" aria-label="Client logos">
         <!-- Set A -->
-        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="Adobe"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="EPAM"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="Google"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="The Happiness Index"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="IBM"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="Marigold"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="Microsoft"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="Oracle"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="Salesforce"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="Sitecore"></li>
-        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="Coveo"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="Epsilon"></li>
-        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="Tealium"></li>
-        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="AiBL"></li>
-        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="Alokai"></li>
-        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="Aquent"></li>
-        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="Bazaarvoice"></li>
-        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="Bynder"></li>
-        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="ChannelAdvisor"></li>
-        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="Equifax"></li>
-        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="Lionbridge"></li>
-        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="Meta"></li>
-        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="North Highland"></li>
-        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="Omnicom Health Group"></li>
-        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="Adobe" loading="eager" decoding="async" fetchpriority="high"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="EPAM" loading="eager" decoding="async" fetchpriority="high"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="Google" loading="eager" decoding="async" fetchpriority="high"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="The Happiness Index" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="IBM" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="Marigold" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="Microsoft" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="Oracle" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="Salesforce" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="Sitecore" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="Coveo" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="Epsilon" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="Tealium" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="AiBL" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="Alokai" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="Aquent" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="Bazaarvoice" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="Bynder" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="ChannelAdvisor" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="Equifax" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="Lionbridge" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="Meta" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="North Highland" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="Omnicom Health Group" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone" decoding="async"></li>
 
-        <!-- Set B (duplicate for seamless loop) -->
-        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="" aria-hidden="true"></li>
-        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="" aria-hidden="true"></li>
+        <!-- Set B (duplicate for seamless loop; aria-hidden to avoid repetition) -->
+        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="" aria-hidden="true" decoding="async"></li>
+        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="" aria-hidden="true" decoding="async"></li>
       </ul>
     </div>
   </section>
 
   <script>
-    // Wait for all logos (cached or fresh) to ensure correct sizes
-    async function logosDecoded(container) {
-      const imgs = Array.from(container.querySelectorAll('img'));
-      await Promise.all(imgs.map(img => img.decode?.().catch(()=>{}) ?? Promise.resolve()));
-    }
-
     (function initMarquee(){
       const track = document.getElementById('track');
 
-      function applyDuration(pxPerSec){
-        // distance per loop = half of the track (A)
-        const half = track.scrollWidth / 2;
-        const seconds = half / pxPerSec;
+      // Start immediately with a reasonable default speed.
+      // Then refine duration after layout so the loop remains smooth.
+      function setDurationFromWidth(pxPerSec){
+        const half = track.scrollWidth / 2;            // distance for one loop
+        const seconds = half / Math.max(pxPerSec, 1);  // guard divide-by-zero
         document.documentElement.style.setProperty('--duration', seconds + 's');
       }
 
-      async function measureAndStart(){
-        // pause animation while measuring
-        track.classList.remove('play');
-        await logosDecoded(track);
-        // px/s from query ?pps=, default 30
+      function refine(){
+        // Support ?pps= in query string, fallback to 40 px/s
         const q = new URLSearchParams(location.search);
-        const pps = parseFloat(q.get('pps') || q.get('pxps') || '30'); // lower = slower
-        applyDuration(isFinite(pps) && pps > 0 ? pps : 30);
-        // start animation
-        track.classList.add('play');
+        const pps = parseFloat(q.get('pps') || q.get('pxps') || '40');
+        setDurationFromWidth(isFinite(pps) && pps > 0 ? pps : 40);
       }
 
-      // initial + on resize + on pageshow (BFCache)
-      measureAndStart();
-      addEventListener('resize', () => measureAndStart(), { passive: true });
-      addEventListener('pageshow', () => measureAndStart());
+      // Kick off right away
+      refine();
+
+      // Recalculate once more after the browser has laid out images
+      // This does not block first paint.
+      requestAnimationFrame(() => requestAnimationFrame(refine));
+
+      // Keep things accurate on resize and BFCache restore
+      addEventListener('resize', refine, { passive: true });
+      addEventListener('pageshow', refine);
     })();
   </script>
 </body>
