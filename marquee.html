@@ -6,9 +6,9 @@
 
 <style>
   :root{
-    --strip-height: 100px;   /* pairs with iframe height */
+    --strip-height: 100px;   /* keep in sync with iframe height */
     --logo-gap: 48px;
-    --speed: 70s;            /* default loop time; overridden by &s=... */
+    --duration: 60s;         /* will be overwritten by JS */
   }
 
   html,body{ margin:0; padding:0; background:transparent; height:100% }
@@ -17,30 +17,28 @@
   .trusted-logos{ width:100vw; overflow:hidden; padding:0; -webkit-user-select:none; user-select:none }
   .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
 
-  /* Track is A+B (duplicated). We'll animate exactly -50% of its own width. */
+  /* A + B duplicated track for seamless loop */
   .track{
     display:flex; align-items:center; gap:var(--logo-gap);
     padding:0 24px; width:max-content; will-change:transform;
-    /* Start paused; JS will add .play once images are decoded */
-    animation: none;
-    opacity:0; transition: opacity .08s linear;
+    animation: scroll var(--duration) linear infinite;
+    opacity:0; transition:opacity .08s linear; /* reveal after measured */
   }
-  .track.play{
-    animation: scroll var(--speed) linear infinite;
-    opacity:1;
-  }
+  .track.play{ opacity:1; }
 
   @keyframes scroll{
     from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    to   { transform: translateX(-50%); } /* move half the track (A) width */
   }
 
   .track li{ list-style:none; flex:0 0 auto }
   .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
 
   @media (prefers-reduced-motion: reduce){
-    .track.play{ animation: none; }
+    .track{ animation: none !important; }
+    .track.play{ opacity:1; }
   }
+
   @media (max-width: 768px){
     :root{ --strip-height: 90px; --logo-gap: 32px }
   }
@@ -111,34 +109,38 @@
   </section>
 
   <script>
-    // Allow ?s=70 (or &speed=70) to override the CSS --speed variable
-    (function setSpeedFromQuery(){
-      const p = new URLSearchParams(location.search);
-      const s = p.get('s') || p.get('speed');
-      if (s && !isNaN(+s)) {
-        document.documentElement.style.setProperty('--speed', String(+s) + 's');
-      }
-    })();
-
-    // Append ?v=... to each logo if provided, purely to bust old edges after you update
-    (function maybeVersionImages(){
-      const v = new URLSearchParams(location.search).get('v');
-      if (!v) return;
-      document.querySelectorAll('.track img').forEach(img => {
-        try {
-          const u = new URL(img.src);
-          u.searchParams.set('v', v);
-          img.src = u.toString();
-        } catch (e) { /* ignore */ }
-      });
-    })();
-
-    // Wait until all logos are decoded, then start the CSS animation (adds .play)
-    (async function startWhenReady(){
-      const track = document.getElementById('track');
-      const imgs = Array.from(track.querySelectorAll('img'));
+    // Wait for all logos (cached or fresh) to ensure correct sizes
+    async function logosDecoded(container) {
+      const imgs = Array.from(container.querySelectorAll('img'));
       await Promise.all(imgs.map(img => img.decode?.().catch(()=>{}) ?? Promise.resolve()));
-      track.classList.add('play');
+    }
+
+    (function initMarquee(){
+      const track = document.getElementById('track');
+
+      function applyDuration(pxPerSec){
+        // distance per loop = half of the track (A)
+        const half = track.scrollWidth / 2;
+        const seconds = half / pxPerSec;
+        document.documentElement.style.setProperty('--duration', seconds + 's');
+      }
+
+      async function measureAndStart(){
+        // pause animation while measuring
+        track.classList.remove('play');
+        await logosDecoded(track);
+        // px/s from query ?pps=, default 30
+        const q = new URLSearchParams(location.search);
+        const pps = parseFloat(q.get('pps') || q.get('pxps') || '30'); // lower = slower
+        applyDuration(isFinite(pps) && pps > 0 ? pps : 30);
+        // start animation
+        track.classList.add('play');
+      }
+
+      // initial + on resize + on pageshow (BFCache)
+      measureAndStart();
+      addEventListener('resize', () => measureAndStart(), { passive: true });
+      addEventListener('pageshow', () => measureAndStart());
     })();
   </script>
 </body>
