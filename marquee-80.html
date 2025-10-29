@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logos Marquee 80s</title>
+
+<style>
+  :root{
+    --strip-height: 100px;
+    --logo-gap: 48px;
+    --duration: 80s; /* hard-set loop time */
+  }
+
+  html,body{ margin:0; padding:0; background:transparent; height:100% }
+  body{ display:flex; align-items:center; justify-content:center; min-height:var(--strip-height) }
+
+  .trusted-logos{ width:100vw; overflow:hidden; padding:0; -webkit-user-select:none; user-select:none }
+  .viewport{ position:relative; overflow:hidden; width:100%; height:var(--strip-height); display:flex; align-items:center }
+
+  /* A+B duplicated track; move exactly half its width per loop */
+  .track{
+    display:flex; align-items:center; gap:var(--logo-gap);
+    padding:0 24px; width:max-content; will-change:transform;
+    animation: scroll var(--duration) linear infinite;
+  }
+  @keyframes scroll{
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .track li{ list-style:none; flex:0 0 auto }
+  .track img{ display:block; height:calc(var(--strip-height)*0.36); width:auto; filter:grayscale(1); opacity:.95 }
+
+  /* visual badge so you can confirm the file loaded */
+  .badge{
+    position:absolute; top:6px; left:8px; z-index:2;
+    font:600 11px/1.2 ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    color:#0a0a0a; background:rgba(255,255,255,.85); border:1px solid #e5e7eb;
+    padding:4px 6px; border-radius:6px; letter-spacing:.02em;
+    user-select:none; pointer-events:none;
+  }
+
+  @media (prefers-reduced-motion: reduce){ .track{ animation:none } }
+  @media (max-width: 768px){ :root{ --strip-height: 90px; --logo-gap: 32px } }
+  @media (max-width: 480px){ :root{ --strip-height: 86px; --logo-gap: 24px } }
+</style>
+
+<body>
+  <section class="trusted-logos" aria-label="Trusted by top companies">
+    <div class="viewport">
+      <div class="badge">v: 80s</div>
+      <ul class="track" aria-label="Client logos">
+        <!-- Set A -->
+        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="Adobe"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="EPAM"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="Google"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="The Happiness Index"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="IBM"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="Marigold"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="Microsoft"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="Oracle"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="Salesforce"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="Sitecore"></li>
+        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="Coveo"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="Epsilon"></li>
+        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="Tealium"></li>
+        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="AiBL"></li>
+        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="Alokai"></li>
+        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="Aquent"></li>
+        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="Bazaarvoice"></li>
+        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="Bynder"></li>
+        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="ChannelAdvisor"></li>
+        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="Equifax"></li>
+        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="Lionbridge"></li>
+        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="Meta"></li>
+        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="North Highland"></li>
+        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="Omnicom Health Group"></li>
+        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="Zone"></li>
+
+        <!-- Set B duplicate -->
+        <li><img src="https://jimmietango.github.io/logos/aaadobe.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaepam.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaagoogle.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaahappinessindex.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaibm.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamarigold.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaamicrosoft.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaaoracle.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasalesforce.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaasitecore.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aacoveo.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aaepsilon.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aatealium.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aibl.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/alokai.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/aquent.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/bazaarvoice.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/bynder.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/channeladvisor.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/equifax.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/lionbridge.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/meta.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/northhighland.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/omnicomhealthgroup.svg" alt="" aria-hidden="true"></li>
+        <li><img src="https://jimmietango.github.io/logos/zone.svg" alt="" aria-hidden="true"></li>
+      </ul>
+    </div>
+  </section>
+</body>
+</html>
